@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='utf-8'?>
+<snippets language="c">
+  <snippet>
+    <tag>std_struct</tag>
+    <text><![CDATA[$<
+global camel_str,low_str,up_str
+components = $1.split('-')
+low_str = '_'.join(components).lower()
+up_str = '_'.join(components).upper()
+camel_str = ''
+
+for t in components:
+  camel_str += t.capitalize()
+>
+/**
+	Code for handling the $<[1]: return camel_str > struct.
+*/
+#include "$1.h"
+
+/**
+	Constructor for $<[1]: return camel_str >
+	
+	@param self
+		reset or initialize the $<[1]: return camel_str > struct.
+	@returns
+		initialized $<[1]: return camel_str > struct.
+*/
+$<[1]: return camel_str > *$1_init($<[1]: return camel_str > *self)
+{
+	if(self)
+	{
+		memset(self,'\0',sizeof($<[1]: return camel_str >));
+		
+		
+	}
+	return self;
+}
+
+/**
+	Constructor and allocator for the $<[1]: return camel_str > struct
+	
+	@returns
+		newly allocated $<[1]: return camel_str > struct.
+*/
+$<[1]: return camel_str > *$1_new(void)
+{
+	$<[1]: return camel_str > *self=malloc(sizeof($<[1]: return camel_str >));
+	if(!self)
+	{
+		return NULL;
+	}
+	
+	$<[1]: return camel_str > *result=$1_init(self);
+	
+	if(!result)
+	{
+		free(self);
+		return NULL;
+	}
+	
+	return result;
+}
+
+/**
+	De-initialize the struct but does not free the input.
+	
+	@param self
+		Struct to handle
+*/
+void $1_finalize($<[1]: return camel_str > *self)
+{
+	if(self)
+	{
+	}
+}
+
+/**
+	Destructor of the struct, will call $1_finalize and free. 
+	
+	@param self
+		Struct to handle. Note that self will be freed inside this function
+*/
+void $1_free($<[1]: return camel_str > *self)
+{
+	if(self)
+	{
+		$1_finalize(self);
+
+		free(self);
+	}
+}
+
+/////////////////////////////]]></text>
+    <description>std_struct</description>
+  </snippet>
+  <snippet>
+    <tag>std_head</tag>
+    <text><![CDATA[$<
+global camel_str,low_str,up_str
+components = $1.split('-')
+low_str = '_'.join(components).lower()
+up_str = '_'.join(components).upper()
+camel_str = ''
+
+for t in components:
+  camel_str += t.capitalize()
+>
+
+typedef struct $<[1]: return camel_str >
+{
+}$<[1]: return camel_str >;
+
+/////////////////////////////
+
+$<[1]: return camel_str > *$1_init($<[1]: return camel_str > *self);
+$<[1]: return camel_str > *$1_new(void);
+void $1_finalize($<[1]: return camel_str > *self);
+void $1_free($<[1]: return camel_str > *self);]]></text>
+    <description>std_head</description>
+  </snippet>
+  <snippet>
+    <tag>std_auto</tag>
+    <text><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+/**
+	Used to steal a pointer to avoid auto cleanup
+*/
+static void *_steal_ptr(void *data)
+{
+	void **fdata=data;
+	if(fdata && *fdata)
+	{
+		void *tmp=*fdata;
+		*fdata=NULL;
+		return tmp;
+	}
+}
+
+//simplification of the steal function
+#define steal_ptr(ptr) _steal_ptr(&(ptr))
+
+/**
+	Defines a temporary free function of single pointer structs
+*/
+static void _cleanup_autofree(void *data)
+{
+	void **fdata=data;
+	if(fdata && *fdata)
+	{
+		free(*fdata);
+		*fdata=NULL;
+	}
+}
+
+//attirbute used with pointers which needs single frees.
+#define autofree __attribute__((cleanup(_cleanup_autofree)))
+
+//used for auto pointers
+#define auto_ptr_cleanup_function(structf,funct) \
+	static void _cleanup_ptr_## structf(structf **fdata) \
+	{ \
+		if(fdata && *fdata) \
+		{ \
+			funct(*fdata); \
+			*fdata=NULL; \
+		} \
+	} \
+	typedef structf* cleanup_ptr_ ## structf
+
+//used together with auto pointers
+#define auto_ptr(struct) __attribute__((cleanup(_cleanup_ptr_ ## struct))) cleanup_ptr_ ## struct
+
+//used for auto pointers
+#define auto_release_cleanup_function(structf,funct) \
+	static void _cleanup_release_## structf(structf *fdata) \
+	{ \
+		if(fdata) \
+		{ \
+			funct(fdata); \
+		} \
+	} \
+	typedef structf cleanup_release_ ## structf
+
+//used together with auto pointers
+#define auto_release(struct) __attribute__((cleanup(_cleanup_release_ ## struct))) cleanup_release_ ## struct
+
+//for FILE types.
+auto_ptr_cleanup_function(FILE,fclose);
+auto_release_cleanup_function(pthread_mutex_t,pthread_mutex_unlock);
+/////////////////////////////////////////////////////]]></text>
+    <description>std_auto</description>
+  </snippet>
+  <snippet>
+    <tag>std_global</tag>
+    <text><![CDATA[$<
+global camel_str,low_str,up_str
+components = $3.split('-')
+low_str = '_'.join(components).lower()
+up_str = '_'.join(components).upper()
+camel_str = ''
+
+for t in components:
+  camel_str += t.capitalize()
+>
+
+$1 $2GLOBAL_$<[3]: return up_str >;
+static pthread_mutex_t GLOBAL_$<[3]: return up_str >_MUTEX = PTHREAD_MUTEX_INITIALIZER;
+
+int global_$3_set($1 $2value)
+{
+	pthread_mutex_lock(&GLOBAL_$<[3]: return up_str >_MUTEX);
+	GLOBAL_$<[3]: return up_str >=value;
+	pthread_mutex_unlock(&GLOBAL_$<[3]: return up_str >_MUTEX);
+}
+
+$1 $2global_$3_get(void)
+{
+	pthread_mutex_lock(&GLOBAL_$<[3]: return up_str >_MUTEX);
+	$1 $2value=GLOBAL_$<[3]: return up_str >;
+	pthread_mutex_unlock(&GLOBAL_$<[3]: return up_str >_MUTEX);
+	
+	return value;
+}]]></text>
+    <description>std_global</description>
+  </snippet>
+  <snippet>
+    <tag>err</tag>
+    <text><![CDATA[fprintf(stderr,"%s:%d $0.\n",__FILE__,__LINE__);]]></text>
+    <description>err</description>
+  </snippet>
+  <snippet override="c-if">
+    <text><![CDATA[if(${1:condition})
+{
+	$0
+}]]></text>
+    <tag>if</tag>
+    <description>if</description>
+  </snippet>
+  <snippet override="c-elif">
+    <text><![CDATA[else if(${1:condition})
+{
+	$0
+}]]></text>
+    <tag>elif</tag>
+    <description>else if</description>
+  </snippet>
+  <snippet override="c-do">
+    <text><![CDATA[do
+{
+	$0
+}while($1);]]></text>
+    <tag>do</tag>
+    <description>do .. while</description>
+  </snippet>
+  <snippet override="c-for">
+    <text><![CDATA[for(${1:i} = ${2:0}; ${1:i} < ${3:count}; ${1:i} += ${4:1})
+{
+	$0
+}]]></text>
+    <tag>for</tag>
+    <description>for loop</description>
+  </snippet>
+  <snippet>
+    <tag>pr</tag>
+    <text><![CDATA[fprintf(stdout,"%s:%d $0\n",__FILE__,__LINE__);]]></text>
+    <description>printf</description>
+  </snippet>
+  <snippet>
+    <tag>prl</tag>
+    <text><![CDATA[fprintf(stdout,"%s:%d $1 [$2]\n",__FILE__,__LINE__,$3);]]></text>
+    <description>printf list</description>
+  </snippet>
+  <snippet>
+    <tag>stat_len</tag>
+    <text><![CDATA[$<
+global print_len
+
+if $1.isupper():
+	print_len="LEN"
+else:
+	print_len="len"
+>#define $1_$<[1]: return print_len > (sizeof($1)/sizeof($1[0]))]]></text>
+    <description>static object length</description>
+  </snippet>
+  <snippet override="c-struct">
+    <text><![CDATA[typedef struct $1
+{
+	$2
+}$1;]]></text>
+    <tag>struct</tag>
+    <description>struct</description>
+  </snippet>
+  <snippet>
+    <tag>memstream</tag>
+    <text><![CDATA[$<
+global print_len,print_fp
+
+if $1.isupper():
+	print_len="LEN"
+	print_fp="FP"
+else:
+	print_len="len"
+	print_fp="fp"
+>char *$1;
+size_t $1_$<[1]: return print_len >;
+FILE *$1_$<[1]: return print_fp >=open_memstream(&$1,&$1_$<[1]: return print_len >);]]></text>
+    <description>memstream</description>
+  </snippet>
+  <snippet>
+    <tag>std_begin</tag>
+    <text><![CDATA[static void $1_end(int signal, void *user_data)
+{
+	
+}
+
+int $1_begin(void)
+{
+	
+
+	on_exit($1_end,NULL);
+}]]></text>
+    <description>std_begin</description>
+  </snippet>
+  <snippet>
+    <tag>userdat</tag>
+    <text><![CDATA[(user_data?(*($1*)(((void**)user_data)[$2])):NULL)]]></text>
+    <description>userdat</description>
+  </snippet>
+  <snippet>
+    <tag>errno</tag>
+    <text><![CDATA[fprintf(stderr,"%s:%d $0. %s\n",__FILE__,__LINE__, strerror(errno));]]></text>
+    <description>errno</description>
+  </snippet>
+</snippets>

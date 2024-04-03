@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<snippets language="cpphdr">
+  <snippet>
+    <tag>if_cpp</tag>
+    <text><![CDATA[#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif]]></text>
+    <description>if_cpp</description>
+  </snippet>
+</snippets>

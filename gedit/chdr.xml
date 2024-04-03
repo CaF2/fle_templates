@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<snippets language="chdr">
+  <snippet>
+    <tag>std_head</tag>
+    <text><![CDATA[$<
+global camel_str,low_str,up_str
+components = $1.split('-')
+low_str = '_'.join(components).lower()
+up_str = '_'.join(components).upper()
+camel_str = ''
+
+for t in components:
+  camel_str += t.capitalize()
+>
+/**
+	Header file for $<[1]: return camel_str >
+*/
+#pragma once
+
+#ifndef $<[1]: return up_str >
+#define $<[1]: return up_str >
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <glib.h>
+
+typedef struct $<[1]: return camel_str >
+{
+}$<[1]: return camel_str >;
+
+/////////////////////////////
+
+$<[1]: return camel_str > *$1_init($<[1]: return camel_str > *self);
+$<[1]: return camel_str > *$1_new(void);
+void $1_finalize($<[1]: return camel_str > *self);
+void $1_free($<[1]: return camel_str > *self);
+
+static void __attribute__((unused)) _$1_cleanup_funct($<[1]: return camel_str > **self){$1_free(*self);}
+#define autofree_$1 __attribute__((cleanup(_$1_cleanup_funct)))
+#define cleanup_$1 __attribute__((cleanup($1_finalize)))
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC($<[1]: return camel_str >,$1_finalize)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC($<[1]: return camel_str >,$1_free)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif]]></text>
+    <description>std_head</description>
+  </snippet>
+  <snippet>
+    <tag>if_cpp</tag>
+    <text><![CDATA[#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif]]></text>
+    <description>If_cpp</description>
+  </snippet>
+</snippets>

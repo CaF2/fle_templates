@@ -15,8 +15,6 @@ VERSION := 0.1
 OUTPUT := $(NAME)
 
 CC := gcc
-MEMTEST := valgrind
-DEBUG := gdb
 
 SRCS := $(wildcard ./src/*.c)
 
@@ -62,11 +60,11 @@ clean:
 run: $(OUTPUT)
 	./$<
 	
-memtest: all
-	$(MEMTEST) --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./$(NAME)
+valgrind: all
+	valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./$(NAME)
 	
-DEBUG:
-	$(DEBUG) --args ./run
+gdb:
+	gdb --args ./run
 
 -include $(DEPS)
 

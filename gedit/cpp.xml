@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<snippets language="cpp">
+  <snippet>
+    <tag>prl</tag>
+    <text><![CDATA[fprintf(stdout,"%s:%d $1 [$2]\n",__FILE__,__LINE__,$3);]]></text>
+    <description>New snippet</description>
+  </snippet>
+</snippets>
